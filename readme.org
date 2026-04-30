@@ -17,6 +17,15 @@ https://github.com/tonybanters/oxwm
 - Fixed focusing keybinds, not changing focused window actually works
   properly
 
+All the implementations are mainly AI generated with human supervision,
+so keep that in mind when deciding if you want to use this fork.
+
+** Building
+
+#+BEGIN_SRC sh
+zig build -Doptimize=ReleaseSmall
+sudo cp -f zig-out/bin/oxwm /usr/bin/
+#+END_SRC
 
 * OXWM — DWM but Better
 A dynamic window manager written in Zig, inspired by dwm but designed to evolve beyond it. OXWM features a clean, functional Lua API for configuration with hot-reloading support, ditching the suckless philosophy of *"edit + recompile"*. Instead, we focus on lowering friction for users with sane defaults, LSP-powered autocomplete, and instant configuration changes without restarting your X session.
