@@ -8,7 +8,8 @@ This is a forked repository of original oxwm repo by Tony
 https://github.com/tonybanters/oxwm
 
 #+BEGIN_QUOTE
-[!IMPORTANT]
+[!CAUTION]
+
 Please read this section carefully first
 before deciding to use this fork
 #+END_QUOTE
