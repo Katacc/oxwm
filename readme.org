@@ -7,8 +7,11 @@
 This is a forked repository of original oxwm repo by Tony
 https://github.com/tonybanters/oxwm
 
-> [!IMPORTANT]
-> Please read this section before deciding to use this
+#+BEGIN_QUOTE
+[!IMPORTANT]
+Please read this section carefully first
+before deciding to use this fork
+#+END_QUOTE
 
 ** Fixes
 - Scrolling animations to not lock at 60fps
