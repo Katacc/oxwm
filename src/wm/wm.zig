@@ -661,14 +661,16 @@ pub const WindowManager = struct {
 
             tickFn(self);
 
-            var current_bar = self.bars;
-            while (current_bar) |bar| {
-                bar.updateBlocks();
-                bar.draw(self.display.handle, self.config);
-                current_bar = bar.next;
+            if (!self.scroll_animation.isActive()) {
+                var current_bar = self.bars;
+                while (current_bar) |bar| {
+                    bar.updateBlocks();
+                    bar.draw(self.display.handle, self.config);
+                    current_bar = bar.next;
+                }
             }
 
-            const poll_timeout: i32 = if (self.scroll_animation.isActive()) 16 else 1000;
+            const poll_timeout: i32 = if (self.scroll_animation.isActive()) 6 else 1000;
             _ = std.posix.poll(&fds, poll_timeout) catch 0;
         }
     }

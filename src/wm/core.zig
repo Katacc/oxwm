@@ -90,7 +90,11 @@ pub fn manage(win: xlib.Window, window_attrs: *xlib.XWindowAttributes, wm: *Wind
         _ = xlib.XRaiseWindow(wm.display.handle, client.window);
     }
 
-    client_mod.attachAside(client);
+    if (isScrollingLayout(monitor)) {
+        client_mod.attachAfter(client, monitor.sel);
+    } else {
+        client_mod.attachAside(client);
+    }
     client_mod.attachStack(client);
 
     _ = xlib.XChangeProperty(wm.display.handle, wm.display.root, wm.atoms.net_client_list, xlib.XA_WINDOW, 32, xlib.PropModeAppend, @ptrCast(&client.window), 1);
@@ -104,7 +108,8 @@ pub fn manage(win: xlib.Window, window_attrs: *xlib.XWindowAttributes, wm: *Wind
     monitor.sel = client;
 
     if (isScrollingLayout(monitor)) {
-        monitor.scroll_offset = 0;
+        const target = scrolling.getTargetScrollForWindow(monitor, client);
+        monitor.scroll_offset = target;
     }
 
     arrange(monitor, wm);
@@ -251,7 +256,7 @@ pub fn restack(monitor: *Monitor, wm: *WindowManager) void {
         }
     }
 
-    _ = xlib.XSync(wm.display.handle, xlib.False);
+    _ = xlib.XFlush(wm.display.handle);
 
     var discard_event: xlib.XEvent = undefined;
     while (xlib.c.XCheckMaskEvent(wm.display.handle, xlib.EnterWindowMask, &discard_event) != 0) {}
@@ -402,8 +407,22 @@ pub fn tickAnimations(wm: *WindowManager) void {
     if (!wm.scroll_animation.isActive()) return;
 
     const monitor = wm.selected_monitor orelse return;
-    if (wm.scroll_animation.update()) |new_offset| {
+    const result = wm.scroll_animation.update();
+    if (result) |new_offset| {
         monitor.scroll_offset = new_offset;
+    }
+
+    if (!wm.scroll_animation.isActive()) {
+        arrange(monitor, wm);
+        var discard_event: xlib.XEvent = undefined;
+        while (xlib.c.XCheckMaskEvent(wm.display.handle, xlib.EnterWindowMask | xlib.PointerMotionMask, &discard_event) != 0) {}
+        return;
+    }
+
+    if (isScrollingLayout(monitor)) {
+        scrolling.scrollEx(monitor, false, true);
+        _ = xlib.XFlush(wm.display.handle);
+    } else {
         arrange(monitor, wm);
     }
 }
