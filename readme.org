@@ -9,18 +9,43 @@ https://github.com/tonybanters/oxwm
 
 *Caution:* Please read this section carefully first before deciding to use this fork.
 
-** Fixes
-- Scrolling animations to not lock at 60fps
-- Disabled cycling of windows, on my fork the last is last and it
-  doesnt jump to the first if you go past
-- Scrolling doesnt always try to force the focused
-  window on the left so we get rid of unecessary scrolling
-- Smoother scrolling for heavy apps like web browsers (Still not perfect)
-- Fixed focusing keybinds, not changing focused window actually works
-  properly
+** Branches
+This fork organizes its changes into separate feature branches for
+clean upstream contribution:
 
-All the implementations are mainly AI generated with human supervision,
-so keep that in mind when deciding if you want to use this fork.
+*** =fix/keybind-focus-move-args=
+Keybind argument forwarding. Previously =FocusStack=, =MoveStack=,
+=IncMaster=, =ViewNextTag=, =ScrollLeft=, and =ScrollRight= all
+ignored the =int_arg= passed from the Lua config, hardcoding direction
+values of 1 or -1. Now these actions use =int_arg= when non-zero,
+falling back to the default direction. Also adds the =FocusPrev= action
+alias to the Lua config parser.
+
+*** =fix/disable-window-cycling=
+Removes window list wrap-around in =focusstack=. Focusing past the last
+visible window no longer jumps to the first, and focusing before the
+first no longer jumps to the last. The end of the client list acts as a
+hard boundary.
+
+*** =fix/smooth-scroll-and-viewport-check=
+Combines scroll animation smoothness improvements with viewport-aware
+scrolling behavior:
+
+- *Smooth animation:* Replaces =XSync= with non-blocking =XFlush=,
+  adds =resizeClientAnim= for animation frames, inserts mid-burst
+  animation ticks (every 8 events), reduces poll timeout to 6ms,
+  and suppresses =EnterNotify= / =FocusIn= / =MotionNotify= /
+  =PropertyNotify= during active animation to prevent focus stealing.
+
+- *Viewport-aware scrolling:* =getTargetScrollForWindow= now checks
+  whether the target window is already fully visible and returns the
+  current offset if so, avoiding unnecessary rescrolls. New windows
+  scroll to their position instead of resetting to offset 0.
+  Closing a floating window no longer triggers scroll recalculation.
+
+- *Bar performance:* Caches =XftColor= allocations per bar instead of
+  alloc/free per =drawText=. Shell blocks spawn child processes
+  asynchronously instead of blocking the event loop.
 
 ** Building
 
