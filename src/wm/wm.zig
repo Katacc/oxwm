@@ -654,9 +654,17 @@ pub const WindowManager = struct {
         _ = xlib.XSync(self.display.handle, xlib.False);
 
         while (self.running) {
+            var events_processed: u32 = 0;
             while (xlib.XPending(self.display.handle) > 0) {
                 var event = self.display.nextEvent();
                 eventFn(&event, self);
+                events_processed += 1;
+                if (events_processed >= 8) {
+                    if (self.scroll_animation.isActive()) {
+                        tickFn(self);
+                    }
+                    events_processed = 0;
+                }
             }
 
             tickFn(self);

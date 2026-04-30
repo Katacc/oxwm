@@ -144,10 +144,9 @@ pub fn unmanage(client: *Client, wm: *WindowManager) void {
         if (monitor.sel == client) {
             monitor.sel = if (next_focus) |nf| nf else monitor.stack;
         }
-        if (isScrollingLayout(monitor)) {
-            const target = if (monitor.sel) |sel| scrolling.getTargetScrollForWindow(monitor, sel) else 0;
-            if (target == 0) {
-                monitor.scroll_offset = scrolling.getScrollStep(monitor);
+        if (isScrollingLayout(monitor) and !client.is_floating) {
+            if (monitor.sel) |sel| {
+                monitor.scroll_offset = scrolling.getTargetScrollForWindow(monitor, sel);
             } else {
                 monitor.scroll_offset = 0;
             }
