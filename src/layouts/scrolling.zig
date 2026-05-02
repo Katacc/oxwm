@@ -132,6 +132,11 @@ pub fn getTargetScrollForWindow(monitor: *Monitor, target: *Client) i32 {
     }
 
     const max_scroll = getMaxScroll(monitor);
-    const target_scroll = (window_width + gap_inner_v) * @as(i32, @intCast(index));
-    return @min(target_scroll, max_scroll);
+    if (window_x_end > viewport_end) {
+        const target_scroll = window_x_end - available_width;
+        return @min(@max(0, target_scroll), max_scroll);
+    } else {
+        const target_scroll = window_x_start;
+        return @min(@max(0, target_scroll), max_scroll);
+    }
 }
