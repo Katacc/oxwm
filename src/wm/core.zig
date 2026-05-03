@@ -286,8 +286,10 @@ pub fn showhideClient(client: ?*Client, wm: *WindowManager) void {
         showhideClient(target.stack_next, wm);
     } else {
         showhideClient(target.stack_next, wm);
+        const monitor = target.monitor orelse return;
         const client_width = target.width + 2 * target.border_width;
-        _ = xlib.XMoveWindow(wm.display.handle, target.window, -2 * client_width, target.y);
+        const hide_x = monitor.win_x - 2 * client_width;
+        _ = xlib.XMoveWindow(wm.display.handle, target.window, hide_x, target.y);
     }
 }
 

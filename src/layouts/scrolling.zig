@@ -39,13 +39,16 @@ pub fn scrollEx(monitor: *Monitor, flush: bool, animating: bool) void {
     var x_pos: i32 = monitor.win_x + gap_outer_v - monitor.scroll_offset;
     const y_pos: i32 = monitor.win_y + gap_outer_h;
     const height = available_height;
-    const hide_x: i32 = -2 * window_width;
+    const hide_x: i32 = monitor.win_x - 2 * monitor.win_w;
+
+    const viewport_left = monitor.win_x + gap_outer_v;
+    const viewport_right = viewport_left + available_width;
 
     current = client_mod.nextTiled(monitor.clients);
     while (current) |client| : (current = client_mod.nextTiled(client.next)) {
         const window_right = x_pos + window_width;
-        const screen_left = monitor.win_x;
-        const screen_right = monitor.win_x + monitor.win_w;
+        const screen_left = viewport_left;
+        const screen_right = viewport_right;
         const is_visible = window_right > screen_left and x_pos < screen_right;
 
         const target_x: i32 = if (is_visible) x_pos else hide_x;
