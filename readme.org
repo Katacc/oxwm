@@ -27,6 +27,13 @@ visible window no longer jumps to the first, and focusing before the
 first no longer jumps to the last. The end of the client list acts as a
 hard boundary.
 
+*** =fix/zombie-processes=
+Prevents zombie child processes. Spawned processes (via
+=spawnCommand=, =spawnTerminal=, and autostart) use =fork=/=exec= but
+the parent never reaped them, leaving =<defunct>= entries in the
+process table. Sets =SIGCHLD= to =SIG_IGN= before the event loop so
+the kernel auto-reaps exited children.
+
 *** =fix/smooth-scroll-and-viewport-check=
 Combines scroll animation smoothness improvements with viewport-aware
 scrolling behavior:
