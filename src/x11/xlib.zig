@@ -247,6 +247,7 @@ pub const PropertyDelete = c.PropertyDelete;
 pub const XA_WM_TRANSIENT_FOR = c.XA_WM_TRANSIENT_FOR;
 pub const XA_WM_NORMAL_HINTS = c.XA_WM_NORMAL_HINTS;
 pub const XA_WM_HINTS = c.XA_WM_HINTS;
+pub const XA_WM_CLASS = c.XA_WM_CLASS;
 
 pub const XDeleteProperty = c.XDeleteProperty;
 pub const XCreateSimpleWindow = c.XCreateSimpleWindow;

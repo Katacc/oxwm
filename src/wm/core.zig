@@ -46,7 +46,11 @@ pub fn manage(win: xlib.Window, window_attrs: *xlib.XWindowAttributes, wm: *Wind
             }
             wm.next_spawn_bypass_rules = false;
         } else {
-            applyRules(client, wm);
+            if (client.monitor) |monitor| {
+                applyRules(client, wm, monitor.tagset[monitor.sel_tags]);
+            } else {
+                applyRules(client, wm, 1);
+            }
         }
     }
 
@@ -483,7 +487,7 @@ fn positionFloating(client: *Client, monitor: *Monitor, pos: config_mod.Floating
     client.y = y;
 }
 
-pub fn applyRules(client: *Client, wm: *WindowManager) void {
+pub fn applyRules(client: *Client, wm: *WindowManager, fallback_tags: u32) void {
     var class_hint: xlib.XClassHint = .{ .res_name = null, .res_class = null };
     _ = xlib.XGetClassHint(wm.display.handle, client.window, &class_hint);
 
@@ -529,7 +533,7 @@ pub fn applyRules(client: *Client, wm: *WindowManager) void {
 
     const monitor = client.monitor orelse return;
     if (client.tags == 0) {
-        client.tags = monitor.tagset[monitor.sel_tags];
+        client.tags = fallback_tags;
     }
 
     if (rule_focus and client.tags != 0) {
@@ -537,6 +541,22 @@ pub fn applyRules(client: *Client, wm: *WindowManager) void {
         const is_tag_focused = (monitor_tagset & client.tags) == client.tags;
         if (!is_tag_focused) {
             view(client.tags, wm);
+        }
+    }
+}
+
+pub fn reapplyRules(client: *Client, wm: *WindowManager) void {
+    const old_tags = client.tags;
+    const old_monitor = client.monitor;
+    const old_is_floating = client.is_floating;
+
+    applyRules(client, wm, old_tags);
+
+    if (client.tags != old_tags or client.monitor != old_monitor or client.is_floating != old_is_floating) {
+        if (client.monitor) |monitor| {
+            arrange(monitor, wm);
+            focusTopClient(monitor, wm);
+            wm.invalidateBars();
         }
     }
 }
